@@ -1,5 +1,5 @@
-import Phaser from 'phaser';
-import './style.css';
+// Phaser is loaded globally from CDN
+// Style is included in index.html
 import { GAME_CONFIG } from './utils/gameConfig.js';
 import MenuScene from './scenes/MenuScene.js';
 import GameScene from './scenes/GameScene.js';
