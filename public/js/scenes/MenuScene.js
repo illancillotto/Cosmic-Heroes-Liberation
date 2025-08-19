@@ -36,21 +36,26 @@ export default class MenuScene extends Phaser.Scene {
     }
     
     createPlaceholderAssets() {
-        // Create colored rectangles as sprites until we get real assets
-        this.add.graphics()
-            .fillStyle(0x6B46C1)
-            .fillRect(0, 0, 100, 100)
-            .generateTexture('hero-sprite', 100, 100);
-            
-        this.add.graphics()
-            .fillStyle(0xF59E0B)
-            .fillRect(0, 0, 100, 100)
-            .generateTexture('enemy-sprite', 100, 100);
-            
-        this.add.graphics()
-            .fillStyle(0x1E1B4B)
-            .fillRect(0, 0, 64, 64)
-            .generateTexture('castle-tile', 64, 64);
+        // Import and generate detailed placeholder assets
+        import('../utils/assetGenerator.js').then(({ AssetGenerator }) => {
+            AssetGenerator.generateAllAssets(this);
+        }).catch(() => {
+            // Fallback to simple colored rectangles
+            this.add.graphics()
+                .fillStyle(0x6B46C1)
+                .fillRect(0, 0, 100, 100)
+                .generateTexture('hero-sprite', 100, 100);
+                
+            this.add.graphics()
+                .fillStyle(0xF59E0B)
+                .fillRect(0, 0, 100, 100)
+                .generateTexture('enemy-sprite', 100, 100);
+                
+            this.add.graphics()
+                .fillStyle(0x1E1B4B)
+                .fillRect(0, 0, 64, 64)
+                .generateTexture('castle-tile', 64, 64);
+        });
     }
     
     createBackground() {

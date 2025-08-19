@@ -42,37 +42,61 @@ export default class GameScene extends Phaser.Scene {
     }
     
     createBackground() {
-        // Dynamic background based on current level
-        const levelColors = [
-            [0x1E1B4B, 0x312E81], // Cosmos Hub - Purple
-            [0x1E3A8A, 0x3730A3], // Osmosis - Blue  
-            [0x7C2D12, 0xB91C1C], // Juno - Orange/Red
-            [0x166534, 0x15803D], // Stargaze - Green
-            [0x7C2D12, 0x000000]  // Rugpuller Tower - Dark Red/Black
-        ];
-        
-        const colors = levelColors[this.currentLevel - 1] || levelColors[0];
-        
-        const bg = this.add.graphics();
-        bg.fillGradientStyle(colors[0], colors[0], colors[1], colors[1]);
-        bg.fillRect(0, 0, this.scale.width, this.scale.height);
+        // Generate detailed background for current level
+        import('../utils/backgroundGenerator.js').then(({ BackgroundGenerator }) => {
+            const bgTexture = BackgroundGenerator.generateBackgroundForLevel(
+                this, 
+                this.currentLevel, 
+                this.scale.width, 
+                this.scale.height
+            );
+            
+            // Add the generated background
+            this.add.image(0, 0, bgTexture).setOrigin(0, 0);
+            
+        }).catch(() => {
+            // Fallback to simple gradient
+            const levelColors = [
+                [0x1E1B4B, 0x312E81], // Cosmos Hub - Purple
+                [0x1E3A8A, 0x3730A3], // Osmosis - Blue  
+                [0x7C2D12, 0xB91C1C], // Juno - Orange/Red
+                [0x166534, 0x15803D], // Stargaze - Green
+                [0x7C2D12, 0x000000]  // Rugpuller Tower - Dark Red/Black
+            ];
+            
+            const colors = levelColors[this.currentLevel - 1] || levelColors[0];
+            const bg = this.add.graphics();
+            bg.fillGradientStyle(colors[0], colors[0], colors[1], colors[1]);
+            bg.fillRect(0, 0, this.scale.width, this.scale.height);
+        });
         
         // Add atmospheric effects
         this.createAtmosphericEffects();
     }
     
     createAtmosphericEffects() {
-        // Floating particles
-        const particles = this.add.particles(0, 0, 'hero-sprite', {
-            scale: { start: 0.1, end: 0 },
-            speed: { min: 10, max: 50 },
-            lifespan: 3000,
-            quantity: 1,
-            alpha: { start: 0.3, end: 0 },
-            tint: 0xF59E0B
+        // Generate particle texture first
+        import('../utils/assetGenerator.js').then(({ AssetGenerator }) => {
+            AssetGenerator.generateParticleSprite(this);
+            
+            // Floating particles
+            const particles = this.add.particles(0, 0, 'particle', {
+                scale: { start: 0.3, end: 0 },
+                speed: { min: 20, max: 80 },
+                lifespan: 2000,
+                quantity: 2,
+                alpha: { start: 0.8, end: 0 },
+                tint: 0xF59E0B
+            });
+            
+            particles.startFollow(this.input.activePointer);
+        }).catch(() => {
+            // Fallback to simple circle particles
+            this.add.graphics()
+                .fillStyle(0xF59E0B)
+                .fillCircle(4, 4, 4)
+                .generateTexture('particle', 8, 8);
         });
-        
-        particles.startFollow(this.input.activePointer);
     }
     
     createUI() {

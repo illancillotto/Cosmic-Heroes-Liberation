@@ -675,14 +675,21 @@ export default class BattleScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
         
-        // Victory effect
-        const particles = this.add.particles(this.scale.width / 2, this.scale.height / 2, 'hero-sprite', {
-            scale: { start: 0.3, end: 0 },
+        // Victory effect - ensure particle texture exists
+        if (!this.textures.exists('particle')) {
+            this.add.graphics()
+                .fillStyle(0x10B981)
+                .fillCircle(4, 4, 4)
+                .generateTexture('particle', 8, 8);
+        }
+        
+        const particles = this.add.particles(this.scale.width / 2, this.scale.height / 2, 'particle', {
+            scale: { start: 0.5, end: 0 },
             speed: { min: 50, max: 150 },
             lifespan: 2000,
-            quantity: 5,
+            quantity: 8,
             tint: 0x10B981,
-            alpha: { start: 0.7, end: 0 }
+            alpha: { start: 0.9, end: 0 }
         });
         
         // Make clickable to continue
