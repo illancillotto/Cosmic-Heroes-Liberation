@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="theme-color" content="#6B46C1">
+    <meta name="description" content="Cosmic Heroes: Liberation - A blockchain strategy game where you fight to liberate NFT collections from the Rugpuller Wizard">
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cosmic Heroes">
+    
+    <title>Cosmic Heroes: Liberation</title>
+    <style>
+        /* Critical CSS for loading state */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: #F59E0B;
+            text-align: center;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loading-title {
+            font-size: clamp(1rem, 5vw, 2rem);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-text {
+            font-size: clamp(0.5rem, 2vw, 0.8rem);
+            margin-bottom: 1rem;
+        }
+        
+        .loading-bar {
+            width: 80%;
+            max-width: 400px;
+            height: 20px;
+            background: #374151;
+            border: 2px solid #F59E0B;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #F59E0B 0%, #EAB308 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+        
+        /* UI Overlay Styles */
+        .ui-overlay {
+            position: absolute;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .ui-overlay > * {
+            pointer-events: auto;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .loading-title {
+                font-size: 1.2rem;
+            }
+            .loading-text {
+                font-size: 0.6rem;
+            }
+        }
+        
+        /* Touch-friendly button styles */
+        .touch-button {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 12px 24px;
+            border: 2px solid #F59E0B;
+            background: rgba(107, 70, 193, 0.8);
+            color: #F59E0B;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .touch-button:hover, .touch-button:focus {
+            background: rgba(107, 70, 193, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .touch-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <div class="loading-title">COSMIC HEROES</div>
+            <div class="loading-title" style="font-size: 0.8em; margin-top: -1rem;">LIBERATION</div>
+            <div class="loading-text">Initializing the liberation...</div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+            <div class="loading-text" id="loading-status">Preparing battlefield...</div>
+        </div>
+        
+        <!-- Game Canvas (Phaser will inject here) -->
+        <div id="phaser-game"></div>
+        
+        <!-- UI Overlays -->
+        <div id="ui-overlay" class="ui-overlay"></div>
+    </div>
+    
+    <!-- Error Fallback -->
+    <div id="error-screen" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1F2937; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #EF4444; text-align: center; z-index: 2000; padding: 2rem;">
+        <div style="font-size: 1.5rem; margin-bottom: 1rem;">🚨 SYSTEM ERROR</div>
+        <div style="font-size: 0.8rem; margin-bottom: 2rem; max-width: 600px; line-height: 1.6;">
+            The cosmic forces are unstable. Please refresh the page or try again later.
+        </div>
+        <button class="touch-button" onclick="location.reload()">RETRY MISSION</button>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
